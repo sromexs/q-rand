@@ -1,0 +1,168 @@
+@font-face {
+  font-family: "QuranTaha";
+  src: url("https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/fonts/quran-taha.woff2") format("woff2"),
+       url("https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/fonts/quran-taha.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Vazirmatn, system-ui, sans-serif;
+  background: #0a0a0f;
+  color: #e8e6e3;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 20px;
+  width: 100%;
+}
+
+.verse-info {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.surah-name {
+  font-size: 0.9rem;
+  color: #c9a84c;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.verse-number {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.verse-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.persian-text {
+  font-size: 1.25rem;
+  line-height: 2.2;
+  text-align: center;
+  color: #f0ece4;
+  padding: 0 4px;
+  direction: rtl;
+  font-weight: 400;
+}
+
+.divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(201, 168, 76, 0.25);
+  margin: 0 auto;
+}
+
+.arabic-text {
+  font-family: QuranTaha, "Traditional Arabic", serif;
+  font-size: 1.15rem;
+  line-height: 2.2;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+  direction: rtl;
+  padding: 12px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  justify-content: center;
+}
+
+.btn {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e8e6e3;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-random {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: rgba(201, 168, 76, 0.25);
+  color: #c9a84c;
+}
+
+.btn-random:active {
+  background: rgba(201, 168, 76, 0.2);
+}
+
+.install-btn {
+  margin-top: 16px;
+  padding: 10px 20px;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: 10px;
+  background: rgba(201, 168, 76, 0.1);
+  color: #c9a84c;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.install-btn:active {
+  transform: scale(0.97);
+  background: rgba(201, 168, 76, 0.18);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 32px 32px;
+  }
+
+  .persian-text {
+    font-size: 1.4rem;
+  }
+
+  .arabic-text {
+    font-size: 1.25rem;
+  }
+}
