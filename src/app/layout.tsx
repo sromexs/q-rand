@@ -25,8 +25,8 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
         />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/icon-192.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/q-rand-icon-192.png" />
+        <link rel="apple-touch-icon" href="/q-rand-icon-192.png" />
       </head>
       <body>{children}</body>
     </html>
