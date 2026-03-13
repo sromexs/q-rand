@@ -36,7 +36,7 @@ body {
 
 .verse-info {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .surah-name {
@@ -51,13 +51,134 @@ body {
   color: rgba(255, 255, 255, 0.35);
 }
 
+.settings-sheet {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+  z-index: 20;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  background: rgba(10, 10, 15, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.settings-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.settings-title {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-options {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #e8e6e3;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.settings-option small {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.74rem;
+}
+
+.settings-option-active {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: rgba(201, 168, 76, 0.1);
+  color: #d8bb68;
+}
+
+.settings-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #e8e6e3;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.settings-switch-active {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: rgba(201, 168, 76, 0.1);
+}
+
+.settings-switch-state {
+  color: #d8bb68;
+  font-size: 0.78rem;
+}
+
+.settings-note {
+  font-size: 0.74rem;
+  line-height: 1.8;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.audio-status {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.audio-error {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #d18a8a;
+}
+
 .verse-card {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: 24px;
-  padding: 24px 0 132px;
+  padding: 24px 0 152px;
 }
 
 .persian-text {
@@ -68,6 +189,20 @@ body {
   padding: 0 4px;
   direction: rtl;
   font-weight: 400;
+}
+
+.persian-text-playing {
+  color: rgba(240, 236, 228, 0.34);
+}
+
+.persian-word {
+  transition: color 0.18s ease, text-shadow 0.18s ease;
+}
+
+.persian-word-highlighted {
+  color: #f6f0df;
+  text-shadow: 0 0 12px rgba(201, 168, 76, 0.22);
+  transition: color 0.18s ease, text-shadow 0.18s ease;
 }
 
 .divider {
@@ -94,7 +229,7 @@ body {
 .controls {
   display: flex;
   direction: ltr;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
   position: fixed;
   left: 50%;
@@ -111,8 +246,8 @@ body {
 }
 
 .btn {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
@@ -142,6 +277,12 @@ body {
   background: rgba(201, 168, 76, 0.2);
 }
 
+.btn-active {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: rgba(201, 168, 76, 0.16);
+  color: #d8bb68;
+}
+
 .install-btn {
   margin-top: 16px;
   padding: 10px 20px;
@@ -169,6 +310,18 @@ body {
 @media (min-width: 640px) {
   .container {
     padding: 32px 32px;
+  }
+
+  .settings-sheet {
+    left: 50%;
+    right: auto;
+    width: min(420px, calc(100vw - 64px));
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 104px);
+  }
+
+  .settings-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .controls {

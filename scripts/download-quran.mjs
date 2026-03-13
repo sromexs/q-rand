@@ -1,7 +1,8 @@
 import { writeFileSync } from "fs";
 
 const ARABIC_URL = "https://api.alquran.cloud/v1/quran/quran-uthmani";
-const PERSIAN_URL = "https://api.alquran.cloud/v1/quran/fa.makarem";
+const MAKAREM_URL = "https://api.alquran.cloud/v1/quran/fa.makarem";
+const FOOLADVAND_URL = "https://api.alquran.cloud/v1/quran/fa.fooladvand";
 
 async function fetchJSON(url) {
   const res = await fetch(url);
@@ -14,20 +15,26 @@ async function main() {
   const arabic = await fetchJSON(ARABIC_URL);
 
   console.log("Downloading Persian translation (Makarem Shirazi)...");
-  const persian = await fetchJSON(PERSIAN_URL);
+  const makarem = await fetchJSON(MAKAREM_URL);
+
+  console.log("Downloading Persian translation (Fooladvand)...");
+  const fooladvand = await fetchJSON(FOOLADVAND_URL);
 
   const arabicSurahs = arabic.data.surahs;
-  const persianSurahs = persian.data.surahs;
+  const makaremSurahs = makarem.data.surahs;
+  const fooladvandSurahs = fooladvand.data.surahs;
 
   const verses = [];
 
   for (let i = 0; i < arabicSurahs.length; i++) {
     const surah = arabicSurahs[i];
-    const persianSurah = persianSurahs[i];
+    const makaremSurah = makaremSurahs[i];
+    const fooladvandSurah = fooladvandSurahs[i];
 
     for (let j = 0; j < surah.ayahs.length; j++) {
       const ay = surah.ayahs[j];
-      const pAy = persianSurah.ayahs[j];
+      const makaremAyah = makaremSurah.ayahs[j];
+      const fooladvandAyah = fooladvandSurah.ayahs[j];
 
       verses.push({
         id: ay.number,
@@ -36,7 +43,11 @@ async function main() {
         surahEnglish: surah.englishName,
         ayah: ay.numberInSurah,
         arabic: ay.text,
-        persian: pAy.text,
+        persian: makaremAyah.text,
+        translations: {
+          makarem: makaremAyah.text,
+          fooladvand: fooladvandAyah.text,
+        },
       });
     }
   }
