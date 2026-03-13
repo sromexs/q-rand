@@ -31,6 +31,7 @@ body {
   margin: 0 auto;
   padding: 20px 20px;
   width: 100%;
+  min-height: 100dvh;
 }
 
 .verse-info {
@@ -54,9 +55,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 24px;
-  padding: 16px 0;
+  padding: 24px 0 32px;
 }
 
 .persian-text {
@@ -93,8 +94,18 @@ body {
 .controls {
   display: flex;
   gap: 12px;
-  padding-top: 16px;
   justify-content: center;
+  position: sticky;
+  top: 12px;
+  z-index: 10;
+  width: fit-content;
+  margin: 0 auto 16px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(10, 10, 15, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .btn {
@@ -156,6 +167,10 @@ body {
 @media (min-width: 640px) {
   .container {
     padding: 32px 32px;
+  }
+
+  .controls {
+    top: 20px;
   }
 
   .persian-text {
