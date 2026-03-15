@@ -7,11 +7,14 @@ const { verses } = quranData;
 const TOTAL = verses.length;
 const STORAGE_KEY = "q-rand:index";
 const AUDIO_SETTINGS_KEY = "q-rand:audio-settings";
-const HIGHLIGHT_LEAD_SECONDS = 0.35;
+const DEFAULT_HIGHLIGHT_OFFSET = 0.24;
 
 type AudioTranslationId = "makarem_kabiri_16kbps" | "fooladvand_hedayatfar_40kbps";
 type PlaybackMode = "idle" | "playing";
 type TranslationKey = "makarem" | "fooladvand";
+
+const SPEED_OPTIONS = [1, 1.25, 1.5, 2] as const;
+type PlaybackSpeed = (typeof SPEED_OPTIONS)[number];
 
 const AUDIO_TRANSLATIONS = [
   {
@@ -40,6 +43,8 @@ export default function Home() {
     useState<AudioTranslationId>("makarem_kabiri_16kbps");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAutoAdvanceEnabled, setIsAutoAdvanceEnabled] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1);
+  const [highlightOffset, setHighlightOffset] = useState(DEFAULT_HIGHLIGHT_OFFSET);
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>("idle");
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
@@ -103,6 +108,8 @@ export default function Home() {
         const parsedSettings = JSON.parse(savedAudioSettings) as {
           translationId?: AudioTranslationId;
           autoAdvanceEnabled?: boolean;
+          playbackSpeed?: number;
+          highlightOffset?: number;
         };
 
         if (
@@ -114,6 +121,21 @@ export default function Home() {
 
         if (typeof parsedSettings.autoAdvanceEnabled === "boolean") {
           setIsAutoAdvanceEnabled(parsedSettings.autoAdvanceEnabled);
+        }
+
+        if (
+          typeof parsedSettings.playbackSpeed === "number" &&
+          SPEED_OPTIONS.includes(parsedSettings.playbackSpeed as PlaybackSpeed)
+        ) {
+          setPlaybackSpeed(parsedSettings.playbackSpeed as PlaybackSpeed);
+        }
+
+        if (
+          typeof parsedSettings.highlightOffset === "number" &&
+          parsedSettings.highlightOffset >= -0.26 &&
+          parsedSettings.highlightOffset <= 0.74
+        ) {
+          setHighlightOffset(parsedSettings.highlightOffset);
         }
       } catch {
         window.localStorage.removeItem(AUDIO_SETTINGS_KEY);
@@ -179,9 +201,11 @@ export default function Home() {
       JSON.stringify({
         translationId: selectedTranslationId,
         autoAdvanceEnabled: isAutoAdvanceEnabled,
+        playbackSpeed,
+        highlightOffset,
       }),
     );
-  }, [isAutoAdvanceEnabled, selectedTranslationId]);
+  }, [isAutoAdvanceEnabled, highlightOffset, playbackSpeed, selectedTranslationId]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -297,25 +321,37 @@ export default function Home() {
       return;
     }
 
+    let rafId = 0;
+
     const getProgress = () => {
       const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
       if (!Number.isFinite(duration) || duration <= 0) {
         return 0;
       }
 
-      return Math.min(1, (audio.currentTime + HIGHLIGHT_LEAD_SECONDS) / duration);
+      const scaledLead = highlightOffset * (audio.playbackRate || 1);
+      return Math.min(1, (audio.currentTime + scaledLead) / duration);
+    };
+
+    const tick = () => {
+      setAudioProgress(getProgress());
+      rafId = requestAnimationFrame(tick);
     };
 
     const handlePlaying = () => {
       setIsAudioLoading(false);
       setAudioError("");
+      audio.playbackRate = playbackSpeed;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(tick);
     };
 
-    const handleTimeUpdate = () => {
-      setAudioProgress(getProgress());
+    const stopRaf = () => {
+      cancelAnimationFrame(rafId);
     };
 
     const handleEnded = () => {
+      stopRaf();
       setIsAudioLoading(false);
       setAudioProgress(1);
 
@@ -327,31 +363,35 @@ export default function Home() {
     };
 
     const handleError = () => {
+      stopRaf();
       setIsAudioLoading(false);
       setAudioError("پخش صوت انجام نشد.");
       setPlaybackMode("idle");
     };
 
-    const handleLoadedMetadata = () => {
-      setAudioProgress(getProgress());
+    const handlePause = () => {
+      stopRaf();
     };
 
     audio.addEventListener("playing", handlePlaying);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("durationchange", handleLoadedMetadata);
+    audio.addEventListener("pause", handlePause);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
 
     return () => {
+      cancelAnimationFrame(rafId);
       audio.removeEventListener("playing", handlePlaying);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("durationchange", handleLoadedMetadata);
+      audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
     };
-  }, [index, isAutoAdvanceEnabled]);
+  }, [highlightOffset, index, isAutoAdvanceEnabled, playbackSpeed]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
 
   const isPlaying = playbackMode === "playing";
   const highlightedWordCount = isPlaying
@@ -440,6 +480,51 @@ export default function Home() {
             </span>
           </button>
 
+          <div className="speed-control">
+            <span className="speed-label">سرعت پخش</span>
+            <div className="speed-options">
+              {SPEED_OPTIONS.map((speed) => (
+                <button
+                  key={speed}
+                  className={`speed-btn${speed === playbackSpeed ? " speed-btn-active" : ""}`}
+                  type="button"
+                  onClick={() => setPlaybackSpeed(speed)}
+                >
+                  {`${speed}x`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="sync-control">
+            <div className="sync-header">
+              <span className="sync-label">هماهنگی هایلایت</span>
+              <div className="sync-header-right">
+                <span className="sync-value">{highlightOffset > 0 ? "+" : ""}{highlightOffset.toFixed(2)}s</span>
+                <button
+                  className="sync-reset"
+                  type="button"
+                  onClick={() => setHighlightOffset(DEFAULT_HIGHLIGHT_OFFSET)}
+                >
+                  بازنشانی
+                </button>
+              </div>
+            </div>
+            <div className="sync-slider-row">
+              <span className="sync-end-label">عقب‌تر</span>
+              <input
+                className="sync-slider"
+                type="range"
+                min={-0.26}
+                max={0.74}
+                step={0.01}
+                value={highlightOffset}
+                onChange={(e) => setHighlightOffset(Number(e.target.value))}
+              />
+              <span className="sync-end-label">جلوتر</span>
+            </div>
+          </div>
+
           <div className="settings-note">
             هر آیه قبل از پخش کامل دانلود می‌شود.
           </div>
@@ -488,7 +573,7 @@ export default function Home() {
           aria-label="Audio settings"
           title="تنظیمات صوت"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
         <button className="btn" onClick={goNext} aria-label="Next">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>

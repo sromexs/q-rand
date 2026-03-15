@@ -24,6 +24,9 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/q-rand-icon-192.png" />
         <link rel="apple-touch-icon" href="/q-rand-icon-192.png" />
